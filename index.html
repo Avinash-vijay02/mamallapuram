@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mamallapuram Heritage Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;700;800&family=Mukta:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sand:#f7e6c4; --sand2:#efd29d; --terra:#c4572f; --terra-d:#8f3a1d;
+    --sea:#1f8a99; --sea-d:#0f5f6e; --sea-l:#7fd0d6; --ink:#3a2417; --leaf:#5b9a4a;
+    --gold:#f2b33d; --cream:#fffaf0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:#2b1a10}
+  body{font-family:'Mukta',system-ui,sans-serif;color:var(--ink);min-height:100vh}
+  .app{max-width:480px;margin:0 auto;background:var(--sand);min-height:100vh;position:relative;overflow:hidden}
+  header{background:linear-gradient(160deg,var(--terra) 0%,var(--terra-d) 100%);color:var(--cream);padding:18px 18px 22px;position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:14px;
+    background:radial-gradient(circle at 10px 0,transparent 9px,var(--sand) 10px) 0 0/20px 14px repeat-x}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;font-weight:600}
+  h1{font-family:'Baloo Thambi 2',cursive;font-weight:800;font-size:36px;line-height:1;margin-top:6px}
+  .tamil{font-family:'Baloo Thambi 2',cursive;font-size:20px;opacity:.9;margin-top:2px}
+  .sub{font-size:14px;margin-top:8px;opacity:.92;max-width:30ch}
+  .sun-badge{position:absolute;right:14px;top:14px;width:70px;height:70px;animation:spin 30s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .progress{margin:14px 16px 6px;background:var(--cream);border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 3px 0 var(--sand2)}
+  .progress b{font-family:'Baloo Thambi 2';font-size:22px;color:var(--terra)}
+  .bar{flex:1;height:10px;background:var(--sand2);border-radius:6px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--terra));border-radius:6px;transition:width .6s cubic-bezier(.3,1.5,.5,1)}
+  .progress small{font-size:12px;line-height:1.2}
+
+  .map-wrap{margin:8px 12px 0;border-radius:22px;overflow:hidden;border:4px solid var(--cream);box-shadow:0 6px 0 var(--sand2),0 10px 24px rgba(80,40,10,.25);position:relative}
+  svg.map{display:block;width:100%;height:auto;touch-action:manipulation}
+  .hint{text-align:center;font-size:13px;margin:10px 0 4px;opacity:.75}
+
+  /* animations */
+  .wave{animation:wave 4s ease-in-out infinite}
+  .wave.w2{animation-duration:5.5s;animation-delay:-1s}
+  .wave.w3{animation-duration:7s;animation-delay:-2s}
+  @keyframes wave{0%,100%{transform:translateX(0)}50%{transform:translateX(-10px)}}
+  .boat{animation:bob 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  .boat.b2{animation-duration:3.6s;animation-delay:-1.2s}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-4px) rotate(4deg)}}
+  .sail{animation:sail 40s linear infinite}
+  @keyframes sail{from{transform:translateY(60px)}to{transform:translateY(-60px)}}
+  .cloud{animation:drift 26s linear infinite}
+  .cloud.c2{animation-duration:38s;animation-delay:-14s}
+  @keyframes drift{from{transform:translateX(-120px)}to{transform:translateX(460px)}}
+  .bird{animation:fly 18s linear infinite}
+  @keyframes fly{from{transform:translate(-40px,40px)}to{transform:translate(440px,-20px)}}
+  .flap{animation:flap .5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+  @keyframes flap{to{transform:scaleY(.4)}}
+  .beam{animation:beam 4s linear infinite;transform-origin:0 0}
+  @keyframes beam{0%,100%{opacity:.0}10%,40%{opacity:.55}50%{opacity:0}}
+  .ball{animation:wobble 3s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+  @keyframes wobble{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  .glow{animation:glow 2.4s ease-in-out infinite}
+  @keyframes glow{50%{opacity:.25}}
+  .pin{cursor:pointer;transform-box:fill-box;transform-origin:50% 100%}
+  .pin .drop{animation:hop 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+  @keyframes hop{0%,70%,100%{transform:translateY(0)}80%{transform:translateY(-7px)}90%{transform:translateY(0)}}
+  .pin:active .drop{transform:scale(1.15)}
+  .pin.done .head{fill:var(--leaf)}
+  .pin text.num{font-family:'Baloo Thambi 2';font-weight:800;font-size:12px;fill:#fff;pointer-events:none}
+  .lbl{font-family:'Baloo Thambi 2';font-weight:700;font-size:10.5px;fill:var(--ink);paint-order:stroke;stroke:var(--cream);stroke-width:3.2px;stroke-linejoin:round;pointer-events:none}
+  .lbl.sea{fill:#fff;stroke:var(--sea-d)}
+
+  /* list */
+  section.list{padding:14px 14px 10px}
+  h2{font-family:'Baloo Thambi 2';font-weight:800;font-size:22px;color:var(--terra-d);margin:6px 4px 10px}
+  .spot{display:flex;gap:12px;align-items:center;background:var(--cream);border-radius:16px;padding:10px 12px;margin-bottom:10px;box-shadow:0 3px 0 var(--sand2);cursor:pointer;transition:transform .15s}
+  .spot:active{transform:scale(.98)}
+  .spot .n{flex:0 0 38px;height:38px;border-radius:50%;background:var(--terra);color:#fff;display:grid;place-items:center;font-family:'Baloo Thambi 2';font-weight:800;font-size:18px}
+  .spot.done .n{background:var(--leaf)}
+  .spot .t{font-family:'Baloo Thambi 2';font-weight:700;font-size:16px;line-height:1.1}
+  .spot .d{font-size:13px;opacity:.75;line-height:1.25}
+  .spot .chev{margin-left:auto;font-size:20px;color:var(--terra);opacity:.6}
+
+  .trail{margin:4px 14px 18px;background:linear-gradient(160deg,var(--sea) 0%,var(--sea-d) 100%);color:#fff;border-radius:20px;padding:16px 16px 12px}
+  .trail h2{color:#fff;margin:0 0 8px}
+  .trail ol{list-style:none;position:relative;padding-left:22px}
+  .trail ol::before{content:"";position:absolute;left:7px;top:6px;bottom:10px;border-left:2px dashed rgba(255,255,255,.55)}
+  .trail li{position:relative;margin-bottom:10px;font-size:14px;line-height:1.3}
+  .trail li::before{content:"";position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--gold);border:2px solid #fff}
+  .trail li b{font-family:'Baloo Thambi 2';font-size:15px;display:block}
+
+  footer{padding:6px 18px 30px;font-size:12px;opacity:.7;text-align:center;line-height:1.4}
+  footer strong{font-family:'Baloo Thambi 2'}
+
+  /* sheet */
+  .scrim{position:fixed;inset:0;background:rgba(40,20,8,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:10}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:480px;transform:translate(-50%,105%);transition:transform .35s cubic-bezier(.2,1.2,.4,1);z-index:11;
+    background:var(--cream);border-radius:26px 26px 0 0;padding:10px 18px 26px;max-height:86vh;overflow-y:auto;box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+  .sheet.on{transform:translate(-50%,0)}
+  .grab{width:44px;height:5px;border-radius:3px;background:var(--sand2);margin:0 auto 10px}
+  .art{height:150px;border-radius:18px;background:linear-gradient(180deg,#ffd9a0 0%,#ffb877 60%,var(--sand2) 100%);display:grid;place-items:center;overflow:hidden;position:relative}
+  .art svg{height:130px;width:auto}
+  .sheet h3{font-family:'Baloo Thambi 2';font-weight:800;font-size:26px;line-height:1.05;margin-top:12px;color:var(--terra-d)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 10px}
+  .chip{font-size:12px;font-weight:600;background:var(--sand);border-radius:20px;padding:3px 10px}
+  .sheet p{font-size:15px;line-height:1.45;margin-bottom:10px}
+  .tip{background:#e6f5f3;border-left:4px solid var(--sea);border-radius:10px;padding:8px 12px;font-size:14px;line-height:1.4;margin-bottom:14px}
+  .tip b{color:var(--sea-d)}
+  .btn{width:100%;border:0;border-radius:16px;padding:14px;font-family:'Baloo Thambi 2';font-weight:800;font-size:18px;color:#fff;background:var(--terra);box-shadow:0 4px 0 var(--terra-d);cursor:pointer}
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--terra-d)}
+  .btn.got{background:var(--leaf);box-shadow:0 4px 0 #3c6e2f}
+  .stamp{position:absolute;right:10px;top:8px;width:84px;height:84px;border-radius:50%;border:3px solid var(--terra);color:var(--terra);display:grid;place-items:center;text-align:center;
+    font-family:'Baloo Thambi 2';font-weight:800;font-size:11px;line-height:1.05;transform:rotate(-14deg) scale(0);opacity:0;background:rgba(255,250,240,.85)}
+  .stamp.on{animation:stampIn .45s cubic-bezier(.3,1.8,.5,1) forwards}
+  @keyframes stampIn{0%{transform:rotate(-30deg) scale(2.2);opacity:0}100%{transform:rotate(-14deg) scale(1);opacity:1}}
+  .stamp.shown{transform:rotate(-14deg) scale(1);opacity:1}
+
+  .toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-120px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:30px;font-weight:600;z-index:20;transition:transform .4s cubic-bezier(.3,1.5,.5,1);font-size:14px;white-space:nowrap}
+  .toast.on{transform:translate(-50%,0)}
+  .confetti{position:fixed;top:-10px;width:9px;height:14px;z-index:19;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <svg class="sun-badge" viewBox="0 0 100 100" aria-hidden="true">
+      <g fill="#f2b33d">
+        <circle cx="50" cy="50" r="20"/>
+        <g id="rays"><path d="M50 4 l5 16 h-10z"/></g>
+        <use href="#rays" transform="rotate(45 50 50)"/><use href="#rays" transform="rotate(90 50 50)"/>
+        <use href="#rays" transform="rotate(135 50 50)"/><use href="#rays" transform="rotate(180 50 50)"/>
+        <use href="#rays" transform="rotate(225 50 50)"/><use href="#rays" transform="rotate(270 50 50)"/>
+        <use href="#rays" transform="rotate(315 50 50)"/>
+      </g>
+      <circle cx="44" cy="47" r="2.4" fill="#8f3a1d"/><circle cx="56" cy="47" r="2.4" fill="#8f3a1d"/>
+      <path d="M43 55 q7 6 14 0" stroke="#8f3a1d" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="kicker">Tamil Nadu: The Quest · Heritage Quest</div>
+    <h1>Mamallapuram</h1>
+    <div class="tamil">மாமல்லபுரம்</div>
+    <div class="sub">Tap the pins, explore the stories and collect a stamp at every stop.</div>
+  </header>
+
+  <div class="progress">
+    <b id="count">0/10</b>
+    <div class="bar"><i id="fill"></i></div>
+    <small>stamps<br>collected</small>
+  </div>
+
+  <div class="map-wrap">
+    <svg class="map" id="map" viewBox="0 0 400 700" role="img" aria-label="Illustrated map of Mamallapuram">
+      <defs>
+        <linearGradient id="seaG" x1="0" x2="1"><stop offset="0" stop-color="#3fb0b9"/><stop offset="1" stop-color="#16798a"/></linearGradient>
+        <linearGradient id="landG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3dcae"/><stop offset="1" stop-color="#eac88a"/></linearGradient>
+        <radialGradient id="hillG" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#d9a873"/><stop offset="1" stop-color="#b07a4b"/></radialGradient>
+        <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#d7b070" opacity=".6"/></pattern>
+      </defs>
+
+      <!-- land -->
+      <rect width="400" height="700" fill="url(#landG)"/>
+      <rect width="400" height="700" fill="url(#dots)"/>
+
+      <!-- backwater / lake west -->
+      <path d="M0 150 C40 170 30 230 10 270 C-5 300 0 330 0 330 Z" fill="#8fd3d3" opacity=".8"/>
+      <path d="M0 470 C50 480 60 540 30 580 C15 600 0 610 0 610 Z" fill="#8fd3d3" opacity=".8"/>
+
+      <!-- palm clusters -->
+      <g id="palm">
+        <path d="M0 0 q2 -14 0 -26" stroke="#7a5230" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <g fill="#5b9a4a"><path d="M0 -26 q-14 -4 -20 6 q10 -8 20 -6z"/><path d="M0 -26 q14 -4 20 6 q-10 -8 -20 -6z"/>
+        <path d="M0 -26 q-8 -12 -18 -10 q10 2 18 10z"/><path d="M0 -26 q8 -12 18 -10 q-10 2 -18 10z"/></g>
+      </g>
+      <use href="#palm" x="60" y="120"/><use href="#palm" x="80" y="135"/><use href="#palm" x="40" y="420"/>
+      <use href="#palm" x="70" y="640"/><use href="#palm" x="95" y="655"/><use href="#palm" x="330" y="520" transform="scale(1)"/>
+      <use href="#palm" x="200" y="70"/><use href="#palm" x="140" y="470"/><use href="#palm" x="300" y="640"/>
+
+      <!-- roads -->
+      <path d="M240 0 C250 80 250 140 230 200 C210 260 225 320 235 380 C245 440 230 500 215 560 L200 700" stroke="#fff6e2" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="M240 0 C250 80 250 140 230 200 C210 260 225 320 235 380 C245 440 230 500 215 560 L200 700" stroke="#e0b878" stroke-width="2" stroke-dasharray="8 8" fill="none"/>
+      <path d="M0 360 C80 360 160 350 235 360" stroke="#fff6e2" stroke-width="7" fill="none" stroke-linecap="round"/>
+
+      <!-- rocky hill -->
+      <path d="M95 225 C110 200 170 195 200 215 C225 235 222 290 215 330 C210 375 200 405 165 410 C125 415 100 395 95 360 C88 320 80 255 95 225Z" fill="url(#hillG)"/>
+      <path d="M115 240 c10 -8 30 -6 38 2 M140 320 c14 -6 30 -2 36 6 M110 375 c12 -6 24 -4 32 4" stroke="#9a6a3e" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>
+      
+
+      <!-- sea -->
+      <path d="M300 0 C285 80 310 150 298 220 C288 290 305 330 300 380 C295 450 315 520 305 600 C300 650 310 700 310 700 L400 700 L400 0Z" fill="url(#seaG)"/>
+      <path d="M300 0 C285 80 310 150 298 220 C288 290 305 330 300 380 C295 450 315 520 305 600 C300 650 310 700 310 700" stroke="#fff3d6" stroke-width="6" fill="none" opacity=".9"/>
+      <g stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7">
+        <path class="wave" d="M325 60 q8 -6 16 0 t16 0 t16 0"/>
+        <path class="wave w2" d="M335 170 q8 -6 16 0 t16 0 t16 0"/>
+        <path class="wave w3" d="M330 280 q8 -6 16 0 t16 0"/>
+        <path class="wave" d="M340 410 q8 -6 16 0 t16 0 t16 0"/>
+        <path class="wave w2" d="M325 520 q8 -6 16 0 t16 0"/>
+        <path class="wave w3" d="M340 630 q8 -6 16 0 t16 0 t16 0"/>
+      </g>
+      <text x="360" y="360" class="lbl sea" text-anchor="middle" transform="rotate(90 360 360)" style="font-size:12px;letter-spacing:.2em">BAY OF BENGAL</text>
+
+      <!-- boats -->
+      <g class="sail"><g class="boat" transform="translate(345 470)">
+        <path d="M-16 0 h32 l-6 8 h-20z" fill="#c4572f"/><path d="M0 0 v-22 l12 18z" fill="#fffaf0"/><path d="M0 -2 v-20 l-10 16z" fill="#f2b33d"/>
+      </g></g>
+      <g class="boat b2" transform="translate(370 120)">
+        <path d="M-14 0 h28 l-5 7 h-18z" fill="#1f5f9a"/><path d="M0 0 v-18 l10 15z" fill="#fffaf0"/>
+      </g>
+
+      <!-- landmarks (art) -->
+      <!-- shore temple -->
+      <g transform="translate(278 300)">
+        <path d="M-18 30 h36 v-8 h-36z" fill="#9c6b45"/>
+        <path d="M-12 22 l4 -30 h16 l4 30z" fill="#c98f5c"/>
+        <path d="M-8 -8 l3 -14 h10 l3 14z" fill="#b47c4b"/><path d="M-3 -22 l3 -8 l3 8z" fill="#8f3a1d"/>
+        <path d="M14 22 l3 -16 h8 l3 16z" fill="#c98f5c"/><path d="M17 6 l4 -8 l4 8z" fill="#8f3a1d"/>
+        <circle class="glow" cx="0" cy="-30" r="5" fill="#f2b33d" opacity=".8"/>
+      </g>
+      <!-- tiger cave -->
+      <g transform="translate(262 72)">
+        <ellipse cx="0" cy="18" rx="26" ry="8" fill="#b07a4b"/>
+        <path d="M-20 16 c0 -26 40 -26 40 0z" fill="#c98f5c"/>
+        <path d="M-8 16 v-10 h16 v10z" fill="#5a3520"/>
+        <g fill="#8f3a1d"><circle cx="-14" cy="-2" r="3"/><circle cx="-6" cy="-8" r="3"/><circle cx="2" cy="-9" r="3"/><circle cx="10" cy="-6" r="3"/><circle cx="16" cy="0" r="3"/></g>
+      </g>
+      <!-- butter ball -->
+      <g transform="translate(125 248)">
+        <path d="M-16 10 l32 0" stroke="#8a5a32" stroke-width="3" stroke-linecap="round"/>
+        <circle class="ball" cx="2" cy="-4" r="14" fill="#a8774c" stroke="#7a5230" stroke-width="2"/>
+      </g>
+      <!-- lighthouse -->
+      <g transform="translate(112 352)">
+        <path class="beam" d="M0 -32 L80 -60 L80 -20 Z" fill="#fff3b0"/>
+        <path d="M-6 10 l2 -38 h8 l2 38z" fill="#fffaf0" stroke="#8f3a1d" stroke-width="1.5"/>
+        <path d="M-5 -2 h10 M-4 -14 h8" stroke="#c4572f" stroke-width="4"/>
+        <rect x="-5" y="-36" width="10" height="8" fill="#f2b33d"/><path d="M-6 -36 l6 -6 l6 6z" fill="#8f3a1d"/>
+      </g>
+      <!-- pancha rathas -->
+      <g transform="translate(200 565)">
+        <path d="M-40 14 h80" stroke="#9c6b45" stroke-width="4" stroke-linecap="round"/>
+        <path d="M-38 12 v-14 l6 -8 l6 8 v14z" fill="#c98f5c"/>
+        <path d="M-24 12 v-18 l8 -10 l8 10 v18z" fill="#b47c4b"/>
+        <path d="M-6 12 v-24 l10 -12 l10 12 v24z" fill="#c98f5c"/>
+        <path d="M16 12 v-16 h22 v16z" fill="#b47c4b"/><path d="M14 -4 q13 -14 26 0z" fill="#9c6b45"/>
+        <g transform="translate(42 6)" fill="#8a6a50"><ellipse cx="0" cy="0" rx="8" ry="6"/><rect x="-7" y="2" width="3" height="6"/><rect x="3" y="2" width="3" height="6"/><path d="M7 -2 q5 4 3 10" stroke="#8a6a50" stroke-width="2.5" fill="none"/></g>
+      </g>
+      <!-- carvers / town -->
+      <g transform="translate(240 410)">
+        <rect x="-14" y="-8" width="28" height="16" rx="2" fill="#e9a36b"/><path d="M-17 -8 l17 -12 l17 12z" fill="#c4572f"/>
+        <rect x="-4" y="0" width="8" height="8" fill="#5a3520"/>
+      </g>
+      <!-- beach umbrella -->
+      <g transform="translate(285 455)">
+        <path d="M0 0 v18" stroke="#5a3520" stroke-width="2"/><path d="M-14 2 q14 -18 28 0z" fill="#f2b33d"/><path d="M-14 2 q7 -6 14 -2 q7 -4 14 2" fill="#c4572f" opacity=".6"/>
+      </g>
+
+      <!-- clouds & birds -->
+      <g class="cloud" opacity=".9"><g transform="translate(0 40)" fill="#fff"><ellipse cx="20" cy="0" rx="22" ry="9"/><ellipse cx="36" cy="-5" rx="14" ry="10"/><ellipse cx="6" cy="-3" rx="10" ry="7"/></g></g>
+      <g class="cloud c2" opacity=".8"><g transform="translate(0 500)" fill="#fff"><ellipse cx="20" cy="0" rx="18" ry="7"/><ellipse cx="32" cy="-4" rx="11" ry="8"/></g></g>
+      <g class="bird"><g transform="translate(0 200)" stroke="#3a2417" stroke-width="1.6" fill="none" stroke-linecap="round">
+        <path class="flap" d="M0 0 q5 -5 10 0 q5 -5 10 0"/><path class="flap" d="M16 10 q4 -4 8 0 q4 -4 8 0"/></g></g>
+
+      <!-- compass -->
+      <g transform="translate(40 52)">
+        <circle r="20" fill="#fffaf0" stroke="#c4572f" stroke-width="2"/>
+        <path d="M0 -16 l5 16 l-5 -4 l-5 4z" fill="#c4572f"/><path d="M0 16 l5 -16 l-5 4 l-5 -4z" fill="#d9b27a"/>
+        <text y="-23" text-anchor="middle" class="lbl" style="font-size:10px">N</text>
+      </g>
+
+      <g id="pins"></g>
+    </svg>
+  </div>
+  <div class="hint">👆 Tap any pin on the map</div>
+
+  <section class="list">
+    <h2>10 stops to explore</h2>
+    <div id="list"></div>
+  </section>
+
+  <section class="trail">
+    <h2>A sample one-day trail</h2>
+    <ol>
+      <li><b>Sunrise · Shore Temple & beach</b>Watch the sun come up behind the temple, then walk the sand past the fishing boats.</li>
+      <li><b>Morning · Pancha Rathas</b>See the five stone chariots and the carved elephant before it gets hot.</li>
+      <li><b>Late morning · The granite hill</b>Arjuna's Penance, Krishna's Butter Ball and the cave temples are all a short walk apart.</li>
+      <li><b>Lunch · Local seafood</b>Try a fresh catch at one of the small eateries near the beach.</li>
+      <li><b>Afternoon · Lighthouse & sculptors' street</b>Climb for the view, then watch stone carvers at work.</li>
+      <li><b>Sunset · Tiger Cave</b>Drive a few kilometres north for a quiet seaside finish.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <strong>Sample concept by DIGENIE</strong> for the Tamil Nadu: The Quest proposal.<br>
+    Illustrative map, not to scale. Check timings and tickets locally before you visit.
+  </footer>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="grab"></div>
+  <div class="art" id="art"><div class="stamp" id="stamp"></div></div>
+  <h3 id="sTitle"></h3>
+  <div class="chips" id="sChips"></div>
+  <p id="sText"></p>
+  <div class="tip" id="sTip"></div>
+  <button class="btn" id="sBtn">Collect stamp</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const ART = {
+  temple:'<svg viewBox="0 0 120 100"><path d="M10 92h100v-8H10z" fill="#9c6b45"/><path d="M30 84l8-50h30l8 50z" fill="#c98f5c"/><path d="M40 34l5-20h16l5 20z" fill="#b47c4b"/><path d="M48 14l5-12l5 12z" fill="#8f3a1d"/><path d="M78 84l5-28h14l5 28z" fill="#c98f5c"/><path d="M84 56l6-12l6 12z" fill="#8f3a1d"/><path d="M0 96q15-6 30 0t30 0t30 0t30 0v4H0z" fill="#1f8a99"/></svg>',
+  rathas:'<svg viewBox="0 0 140 90"><path d="M4 84h132" stroke="#9c6b45" stroke-width="5"/><path d="M8 82V60l10-12l10 12v22z" fill="#c98f5c"/><path d="M32 82V54l12-14l12 14v28z" fill="#b47c4b"/><path d="M60 82V46l14-16l14 16v36z" fill="#c98f5c"/><path d="M94 82V58h34v24z" fill="#b47c4b"/><path d="M90 58q21-22 42 0z" fill="#9c6b45"/></svg>',
+  relief:'<svg viewBox="0 0 140 90"><rect x="6" y="10" width="128" height="76" rx="10" fill="#b8865a"/><path d="M70 10v76" stroke="#7a5230" stroke-width="3"/><g fill="#8f5f38"><ellipse cx="34" cy="68" rx="20" ry="12"/><rect x="18" y="72" width="6" height="12"/><rect x="42" y="72" width="6" height="12"/><path d="M14 66q-6 10 0 18" stroke="#8f5f38" stroke-width="5" fill="none"/><circle cx="100" cy="34" r="6"/><rect x="96" y="40" width="8" height="22" rx="3"/><circle cx="116" cy="44" r="5"/><rect x="112" y="49" width="8" height="18" rx="3"/><circle cx="30" cy="26" r="5"/><rect x="26" y="31" width="8" height="16" rx="3"/></g></svg>',
+  ball:'<svg viewBox="0 0 120 100"><path d="M5 95L115 70v25z" fill="#b07a4b"/><circle cx="62" cy="50" r="30" fill="#a8774c" stroke="#7a5230" stroke-width="3"/><path d="M45 40q10-8 22-4" stroke="#c9a074" stroke-width="4" fill="none" stroke-linecap="round"/></svg>',
+  cave:'<svg viewBox="0 0 140 90"><rect x="6" y="14" width="128" height="72" rx="8" fill="#c98f5c"/><g fill="#5a3520"><rect x="22" y="40" width="20" height="46"/><rect x="60" y="40" width="20" height="46"/><rect x="98" y="40" width="20" height="46"/></g><g fill="#b47c4b"><rect x="14" y="30" width="8" height="56"/><rect x="42" y="30" width="18" height="56"/><rect x="80" y="30" width="18" height="56"/><rect x="118" y="30" width="8" height="56"/></g><rect x="6" y="14" width="128" height="16" fill="#9c6b45"/></svg>',
+  light:'<svg viewBox="0 0 120 100"><path d="M60 22L120 6v34z" fill="#fff3b0" opacity=".8"/><path d="M48 96l4-66h16l4 66z" fill="#fffaf0" stroke="#8f3a1d" stroke-width="2"/><path d="M50 76h20M51 56h18" stroke="#c4572f" stroke-width="7"/><rect x="50" y="14" width="20" height="16" fill="#f2b33d"/><path d="M48 14l12-10l12 10z" fill="#8f3a1d"/><path d="M14 96v-20h18v20z" fill="#b47c4b"/><path d="M12 76l11-10l11 10z" fill="#9c6b45"/></svg>',
+  tiger:'<svg viewBox="0 0 140 90"><ellipse cx="70" cy="80" rx="64" ry="10" fill="#b07a4b"/><path d="M24 80c0-60 92-60 92 0z" fill="#c98f5c"/><path d="M54 80V58h32v22z" fill="#5a3520"/><g fill="#8f3a1d"><circle cx="34" cy="50" r="7"/><circle cx="48" cy="34" r="7"/><circle cx="64" cy="28" r="7"/><circle cx="80" cy="28" r="7"/><circle cx="94" cy="34" r="7"/><circle cx="106" cy="50" r="7"/></g><g fill="#f2b33d"><circle cx="32" cy="48" r="1.6"/><circle cx="36" cy="48" r="1.6"/><circle cx="62" cy="26" r="1.6"/><circle cx="66" cy="26" r="1.6"/><circle cx="104" cy="48" r="1.6"/><circle cx="108" cy="48" r="1.6"/></g></svg>',
+  beach:'<svg viewBox="0 0 140 90"><rect width="140" height="50" fill="#7fd0d6"/><path d="M0 50q35-8 70 0t70 0v40H0z" fill="#f3dcae"/><path d="M30 60h40l-8 10H38z" fill="#c4572f"/><path d="M50 60V36l16 22z" fill="#fffaf0"/><path d="M104 78V52" stroke="#5a3520" stroke-width="3"/><path d="M86 54q18-22 36 0z" fill="#f2b33d"/></svg>',
+  chisel:'<svg viewBox="0 0 140 90"><rect x="20" y="40" width="44" height="46" rx="4" fill="#b8865a"/><circle cx="42" cy="30" r="14" fill="#c98f5c"/><circle cx="37" cy="28" r="2" fill="#5a3520"/><circle cx="47" cy="28" r="2" fill="#5a3520"/><path d="M84 30l30 40" stroke="#7a7a7a" stroke-width="6" stroke-linecap="round"/><rect x="96" y="12" width="22" height="16" rx="3" fill="#8f3a1d" transform="rotate(30 107 20)"/><path d="M70 70h50" stroke="#9c6b45" stroke-width="5"/></svg>'
+};
+
+const SPOTS = [
+  {id:'shore', n:1, x:278, y:262, lx:0, ly:-12, name:'Shore Temple', short:'Granite temple on the edge of the sea', art:'temple',
+   chips:['Pallava era · early 8th century','UNESCO World Heritage','45–60 min'],
+   text:'One of the oldest structural stone temples in South India, built by the Pallava kings right on the shore of the Bay of Bengal. Its twin towers hold shrines to Shiva and Vishnu, and the waves have shaped its weathered carvings for centuries.',
+   tip:'<b>Best time:</b> sunrise, when the first light hits the towers from the sea.'},
+  {id:'penance', n:2, x:206, y:282, lx:28, ly:4, name:"Arjuna's Penance", short:'A giant story carved in open-air rock', art:'relief',
+   chips:['7th century','Open-air rock relief','30 min'],
+   text:'A huge relief carved across two massive boulders, crowded with gods, sages, people and life-size elephants. Scholars still debate whether it shows Arjuna\'s penance from the Mahabharata or the descent of the Ganga to earth.',
+   tip:'<b>Look for:</b> the little cat standing like a sage, copying the ascetic above it.'},
+  {id:'ball', n:3, x:125, y:228, lx:0, ly:-14, name:"Krishna's Butter Ball", short:'A giant boulder that refuses to roll', art:'ball',
+   chips:['Natural wonder','Free to visit','20 min'],
+   text:'A massive round granite boulder balanced on a smooth slope, seemingly defying gravity. Local legend links it to a ball of butter dropped by young Krishna, and it has become the town\'s favourite photo stop.',
+   tip:'<b>Fun:</b> everyone tries the "pushing the rock" photo. It has not moved yet!'},
+  {id:'varaha', n:4, x:160, y:265, lx:-2, ly:-13, name:'Varaha Cave Temple', short:'Rock-cut hall with mythic panels', art:'cave',
+   chips:['7th century','Rock-cut mandapa','20 min'],
+   text:'A small hall cut straight into the hillside, with pillars resting on seated lions. Inside, carved panels show Vishnu as Varaha, the boar, lifting the earth goddess, and Gajalakshmi bathed by elephants.',
+   tip:'<b>Look for:</b> the lion-based pillars, a Pallava signature.'},
+  {id:'mahisha', n:5, x:168, y:385, lx:0, ly:22, name:'Mahishasuramardini Cave', short:'Durga\'s battle carved in stone', art:'cave',
+   chips:['7th century','Rock-cut cave temple','20 min'],
+   text:'On the hilltop near the lighthouse, this cave temple holds one of the most dramatic panels in Mamallapuram: the goddess Durga riding her lion into battle against the buffalo demon Mahishasura. Opposite, Vishnu rests peacefully on the serpent Adishesha.',
+   tip:'<b>Look for:</b> the contrast of action on one wall and calm on the other.'},
+  {id:'light', n:6, x:110, y:316, lx:-6, ly:-12, name:'Lighthouse & Hilltop Temple', short:'The best view in town', art:'light',
+   chips:['Colonial-era lighthouse','Pallava hilltop temple','30–45 min'],
+   text:'Climb the lighthouse for a sweeping view over the temples, the coconut groves and the sea. Next to it stands the old Olakkanatha temple on the hilltop, a Pallava shrine that once served as a beacon for sailors.',
+   tip:'<b>Tip:</b> carry water, the stairs and the hill get warm by noon.'},
+  {id:'rathas', n:7, x:200, y:520, lx:0, ly:-12, name:'Pancha Rathas', short:'Five chariots carved from single rocks', art:'rathas',
+   chips:['7th century','Monolithic shrines','45 min'],
+   text:'Five temples, each carved out of a single block of granite, named after the five Pandava brothers and Draupadi. Around them stand life-size stone animals: an elephant, a lion and Nandi the bull.',
+   tip:'<b>Look for:</b> how every ratha has a different roof style, like a catalogue of temple designs.'},
+  {id:'tiger', n:8, x:262, y:40, lx:-30, ly:4, name:'Tiger Cave', short:'Seaside shrine crowned with tiger heads', art:'tiger',
+   chips:['Saluvankuppam','A few km north','30–45 min'],
+   text:'A rock-cut shrine whose entrance is framed by a ring of carved, tiger-like yali heads. Set among rocks and casuarina trees by the sea, it is a calmer spot away from the main crowds.',
+   tip:'<b>Best time:</b> late afternoon, perfect as the last stop of the day.'},
+  {id:'beach', n:9, x:292, y:430, lx:0, ly:4, lbl:'Beach', name:'Mamallapuram Beach', short:'Fishing boats, sea breeze and sunrise', art:'beach',
+   chips:['Beach walk','Seafood nearby','Anytime'],
+   text:'A long stretch of golden sand next to the Shore Temple, lined with colourful fishing boats. Walk the shore, watch the fishermen bring in the catch, and try fresh seafood at the small eateries close by.',
+   tip:'<b>Safety:</b> the sea here can have strong currents. Enjoy the waves from the shore.'},
+  {id:'carvers', n:10, x:240, y:392, lx:30, ly:4, name:"Sculptors' Street", short:'Stone carving that never stopped', art:'chisel',
+   chips:['Living heritage','Local artisans','30 min'],
+   text:'The chisel-and-hammer tradition that made Mamallapuram famous is still alive. Workshops along the streets carve gods, animals and lamps from granite, and you can watch artisans shape a sculpture by hand.',
+   tip:'<b>Support local:</b> a small carving makes a lasting souvenir.'}
+];
+
+let got = new Set();
+try { JSON.parse(localStorage.getItem('mq-stamps')||'[]').forEach(i=>got.add(i)); } catch(e){}
+const save=()=>{ try{ localStorage.setItem('mq-stamps',JSON.stringify([...got])); }catch(e){} };
+
+const NS='http://www.w3.org/2000/svg';
+const pins=document.getElementById('pins');
+SPOTS.forEach(s=>{
+  const g=document.createElementNS(NS,'g');
+  g.setAttribute('class','pin'); g.setAttribute('data-id',s.id);
+  g.setAttribute('transform',`translate(${s.x} ${s.y})`);
+  g.innerHTML=`<ellipse cx="0" cy="2" rx="7" ry="2.5" fill="#000" opacity=".2"/>
+    <g class="drop" style="animation-delay:${-s.n*0.37}s"><path class="head" d="M0 0 C-4 -6 -12 -11 -12 -20 A12 12 0 1 1 12 -20 C12 -11 4 -6 0 0Z" fill="#c4572f" stroke="#fffaf0" stroke-width="2.5"/>
+    <text class="num" x="0" y="-16" text-anchor="middle">${s.n}</text></g>
+    <text class="lbl" x="${s.lx>0?14:s.lx<0?-14:0}" y="${s.lx!==0?-16:(s.ly>0?13:-37)}" text-anchor="${s.lx>0?'start':s.lx<0?'end':'middle'}">${s.lbl||s.name.replace(' & Hilltop Temple','')}</text>`;
+  g.addEventListener('click',()=>open(s.id));
+  pins.appendChild(g);
+});
+
+const list=document.getElementById('list');
+SPOTS.forEach(s=>{
+  const d=document.createElement('div'); d.className='spot'; d.dataset.id=s.id;
+  d.innerHTML=`<div class="n">${s.n}</div><div><div class="t">${s.name}</div><div class="d">${s.short}</div></div><div class="chev">›</div>`;
+  d.onclick=()=>open(s.id); list.appendChild(d);
+});
+
+const $=id=>document.getElementById(id);
+let cur=null;
+function refresh(){
+  $('count').textContent=`${got.size}/${SPOTS.length}`;
+  $('fill').style.width=(got.size/SPOTS.length*100)+'%';
+  document.querySelectorAll('.pin').forEach(p=>p.classList.toggle('done',got.has(p.dataset.id)));
+  document.querySelectorAll('.spot').forEach(p=>{p.classList.toggle('done',got.has(p.dataset.id)); p.querySelector('.n').textContent=got.has(p.dataset.id)?'✓':SPOTS.find(s=>s.id===p.dataset.id).n;});
+}
+function open(id){
+  const s=SPOTS.find(x=>x.id===id); cur=s;
+  $('art').innerHTML=ART[s.art]+`<div class="stamp" id="stamp">★<br>${s.name.split(' ')[0].toUpperCase()}<br>VISITED</div>`;
+  $('sTitle').textContent=s.name;
+  $('sChips').innerHTML=s.chips.map(c=>`<span class="chip">${c}</span>`).join('');
+  $('sText').textContent=s.text; $('sTip').innerHTML=s.tip;
+  const b=$('sBtn');
+  if(got.has(id)){ b.textContent='Stamp collected ✓'; b.classList.add('got'); $('stamp').classList.add('shown'); }
+  else { b.textContent='Collect stamp'; b.classList.remove('got'); }
+  $('sheet').scrollTop=0;
+  $('scrim').classList.add('on'); $('sheet').classList.add('on');
+}
+function close(){ $('scrim').classList.remove('on'); $('sheet').classList.remove('on'); }
+$('scrim').onclick=close;
+$('sBtn').onclick=()=>{
+  if(!cur) return;
+  if(got.has(cur.id)){ close(); return; }
+  got.add(cur.id); save();
+  $('stamp').classList.add('on');
+  const b=$('sBtn'); b.textContent='Stamp collected ✓'; b.classList.add('got');
+  refresh();
+  if(got.size===SPOTS.length){ toast('🎉 Quest complete! You explored all of Mamallapuram'); confetti(); }
+  else toast(`Stamp ${got.size} of ${SPOTS.length} collected!`);
+};
+let tt;
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2200); }
+function confetti(){
+  const cols=['#c4572f','#f2b33d','#1f8a99','#5b9a4a','#fffaf0'];
+  for(let i=0;i<70;i++){ const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*100+'vw'; c.style.background=cols[i%cols.length];
+    c.style.animationDuration=(1.8+Math.random()*1.8)+'s'; c.style.animationDelay=(Math.random()*.6)+'s';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),4500); }
+}
+// swipe down to close
+let y0=null; $('sheet').addEventListener('touchstart',e=>{ if($('sheet').scrollTop<=0) y0=e.touches[0].clientY; },{passive:true});
+$('sheet').addEventListener('touchmove',e=>{ if(y0!==null && e.touches[0].clientY-y0>70){ y0=null; close(); } },{passive:true});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') close(); });
+refresh();
+</script>
+</body>
+</html>
